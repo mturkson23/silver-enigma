@@ -23,13 +23,13 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # Logout user
-@app.route('/logout.html')
+@app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
 # Register a new user
-@app.route('/register.html', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     
     # declare the Registration Form
@@ -75,8 +75,13 @@ def register():
     return render_template('layouts/auth-default.html',
                             content=render_template( 'pages/register.html', form=form, msg=msg ) )
 
+
+@app.route('/api/stats/<action>', methods=['GET'])
+def stats(action):
+    return {"revenue": "120,000", "users": 11, "sales": "20,000", "profit":"5,000"}
+
 # Authenticate user
-@app.route('/login.html', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     
     # Declare the login form
@@ -93,7 +98,7 @@ def login():
         password = request.form.get('password', '', type=str) 
 
         # filter User out of database through username
-        user = User.query.filter_by(user=username).first()
+        user = User.query.filter_by(username=username).first()
 
         if user:
             
@@ -104,7 +109,7 @@ def login():
             else:
                 msg = "Wrong password. Please try again."
         else:
-            msg = "Unkkown user"
+            msg = "Invalid Credentials"
 
     return render_template('layouts/auth-default.html',
                             content=render_template( 'pages/login.html', form=form, msg=msg ) )
@@ -113,22 +118,17 @@ def login():
 @app.route('/', defaults={'path': 'index.html'})
 @app.route('/<path>')
 def index(path):
-
+    # print (current_user)
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
-
     content = None
-
     try:
-
         # try to match the pages defined in -> pages/<input file>
         return render_template('layouts/default.html',
                                 content=render_template( 'pages/'+path) )
     except:
-        
         return render_template('layouts/auth-default.html',
                                 content=render_template( 'pages/404.html' ) )
-
 # Return sitemap 
 @app.route('/sitemap.xml')
 def sitemap():
