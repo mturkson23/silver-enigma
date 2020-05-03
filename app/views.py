@@ -14,8 +14,8 @@ from werkzeug.exceptions import HTTPException, NotFound, abort
 
 # App modules
 from app        import app, lm, db, bc
-from app.models import User, Product
-from app.forms  import LoginForm, RegisterForm, ProductForm
+from app.models import User, Product, Stock
+from app.forms  import LoginForm, RegisterForm, ProductForm, StockForm
 
 # provide login manager with load_user callback
 @lm.user_loader
@@ -78,7 +78,7 @@ def register():
 
 @app.route('/api/stats/<action>', methods=['GET'])
 def stats(action):
-    return {"revenue": "120,000", "users": 11, "sales": "20,000", "profit":"5,000"}
+    return {"revenue": "20,000", "users": 11, "sales": "12,000", "profit":"5,000"}
 
 # Authenticate user
 @app.route('/login', methods=['GET', 'POST'])
@@ -117,13 +117,102 @@ def login():
 # List all products
 @app.route('/products')
 def fetch_products():
-    # declare the product form
-    form = ProductForm(request.form)
-
     # fetch all products from database
     products = Product.query.all()
     return render_template('layouts/default.html', 
         content=render_template( 'pages/manage-products.html', products=products))
+
+# List all stock items
+@app.route('/stock')
+def fetch_stock():
+    # fetch all stock from database
+    stock = Stock.query.all()
+    return render_template('layouts/default.html', 
+        content=render_template( 'pages/manage-stock.html', stock=stock))        
+
+# Add stock
+@app.route('/stock/add', methods=['GET','POST'])
+def add_stock():
+    # add stock to database
+    # declare the product form
+    form = StockForm(request.form)
+    form.product.choices = [(x.id, x.name) for x in Product.query.all()]
+
+    msg = None
+    if request.method == 'GET': 
+        return render_template('layouts/default.html',
+                                content=render_template( 'pages/add-stock.html', form=form, message=msg ))    
+    # check if both http method is POST and form is valid on submit
+    if form.validate_on_submit():
+        # assign form data to variables
+        cost_price = request.form.get('cost_price', '', type=float)
+        sell_price = request.form.get('sell_price', '', type=float) 
+        quantity    = request.form.get('quantity'   , '', type=int) 
+        product_id    = request.form.get('product'   , '', type=int)
+        # see if stock entry already exists
+        stock = Stock.query.filter_by(product_id=product_id, quantity=quantity).first()
+        # 
+        if stock:
+            msg = f'Error: A stock entry for {stock.quantity} {stock.product} already exists!'
+        else:
+            stock = Stock(cost_price, sell_price, quantity, product_id)
+            stock.save()
+            msg = 'Stock item successfully created! Return to stock page or add another stock.'
+    else:
+        msg = 'I am sorry but the details you entered cannot be saved :('
+    print (msg)
+    return render_template('layouts/default.html', 
+        content=render_template( 'pages/add-stock.html', message=msg, form=form))
+
+# Delete stock item
+@app.route('/stock/delete/<id>')
+def delete_stock(id):
+    # check if stock item exists
+    stock = Stock.query.filter_by(id=id).first()
+    if stock:
+        db.session.delete(stock)
+        db.session.commit()
+        msg = 'Stock item has been successfuly deleted!'
+    else:
+        msg = 'The stock item you want to delete does not exist.'
+    return redirect('/stock')
+
+# Edit stock in request
+@app.route('/stock/edit/<id>', methods=['GET', 'POST'])
+def edit_stock(id):
+    # declare the Stock Form
+    form = StockForm(request.form)
+    form.product.choices = [(x.id, x.name) for x in Product.query.all()]
+    msg = None
+    # check if stock already exists
+    stock = Stock.query.filter_by(id = id).first()
+
+    if request.method == 'GET': 
+        return render_template('layouts/default.html',
+                                content=render_template('pages/edit-stock.html', 
+                                form=form, 
+                                stock=stock, 
+                                message=msg))
+    # check if both http method is POST and form is valid on submit
+    if form.validate_on_submit():
+        # assign form data to variables
+        cost_price = request.form.get('cost_price', '', type=float)
+        sell_price = request.form.get('sell_price', '', type=float) 
+        quantity    = request.form.get('quantity'   , '', type=int) 
+        product_id    = request.form.get('product'   , '', type=int)
+        # if the requested product exists
+        if stock:
+            stock.cost_price = cost_price
+            stock.sell_price = sell_price
+            stock.quantity = quantity
+            stock.product_id = product_id
+            db.session().commit()
+            msg = 'Stock item successfully created! Return to stock page or make further changes.'            
+        else:
+            msg = f'Error: A stock entry for {stock.quantity} {stock.product} already exists'
+    else:
+        msg = 'I am sorry but the details you entered cannot be saved :('
+    return redirect('/stock')
 
 # Add product
 @app.route('/products/add', methods=['GET','POST'])
@@ -210,12 +299,11 @@ def edit_product(id):
             product.producttype_id = product_type
             product.description = description
             db.session().commit()
-            msg = 'Product successfully created! Return to product page or add another product.'            
+            msg = 'Product successfully edited! Return to product page or make further changes.'            
         else:
             msg = f'Error: A product named {product.name} does not exist!'
     else:
         msg = 'I am sorry but the details you entered cannot be saved :('
-
     return redirect('/products')
 
 # App main route + generic routing

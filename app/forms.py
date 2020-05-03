@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from flask_wtf          import FlaskForm
 from flask_wtf.file     import FileField, FileRequired
-from wtforms            import StringField, SelectField, SubmitField, PasswordField
+from wtforms            import StringField, SelectField, SubmitField, PasswordField, DecimalField, IntegerField
 from wtforms.validators import InputRequired, Email, DataRequired
 
 class LoginForm(FlaskForm):
@@ -23,3 +23,9 @@ class ProductForm(FlaskForm):
 	product_type   = SelectField(u'Product Type', coerce=int, choices = [(1, 'Airtime'), (2, 'E-Cash')], validators=[DataRequired()])
 	description     = StringField  (u'Description', validators=[DataRequired()])	
 	imageurl 		= FileField (u'Product Icon')	
+
+class StockForm(FlaskForm):
+	cost_price    		= DecimalField  (u'Cost Price'  , validators=[DataRequired()])
+	sell_price    		= DecimalField  (u'Selling Price'  , validators=[DataRequired()])
+	quantity    		= IntegerField  (u'Quantity'  , validators=[DataRequired()])
+	product   			= SelectField(u'Product', coerce=int)

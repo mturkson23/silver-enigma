@@ -20,7 +20,7 @@ class User(UserMixin, db.Model):
     email    = db.Column(db.String(120), unique = True)
     password = db.Column(db.String(80))
     staffno  = db.Column(db.String(20), unique = True)
-    photo    = db.Column(db.String(20), unique = True, server_default = 'sample.png')
+    photo    = db.Column(db.String(20), server_default = 'sample.png')
 
     request = relationship("Request", back_populates = "user")
 
@@ -64,7 +64,7 @@ class Product(db.Model):
         self.producttype_id  = producttype_id
 
     def __repr__(self):
-        return '<Product %r - %s>' % (self.id) % (self.name)
+        return '%s (%s)' % (self.name, self.producttype)
 
     def save(self):
         # inject self into db session
@@ -90,7 +90,7 @@ class Stock(db.Model):
         self.product_id  = product_id
 
     def __repr__(self):
-        return '<Stock %r - %r>' % (self.id) % (self.sell_price)
+        return '%s' % (self.product)
 
     def save(self):
         # inject self into db session
