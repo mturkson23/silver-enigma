@@ -14,8 +14,8 @@ from werkzeug.exceptions import HTTPException, NotFound, abort
 
 # App modules
 from app        import app, lm, db, bc
-from app.models import User
-from app.forms  import LoginForm, RegisterForm
+from app.models import User, Product
+from app.forms  import LoginForm, RegisterForm, ProductForm
 
 # provide login manager with load_user callback
 @lm.user_loader
@@ -51,7 +51,7 @@ def register():
         email    = request.form.get('email'   , '', type=str) 
 
         # filter User out of database through username
-        user = User.query.filter_by(user=username).first()
+        user = User.query.filter_by(username=username).first()
 
         # filter User out of database through username
         user_by_email = User.query.filter_by(email=email).first()
@@ -112,7 +112,111 @@ def login():
             msg = "Invalid Credentials"
 
     return render_template('layouts/auth-default.html',
-                            content=render_template( 'pages/login.html', form=form, msg=msg ) )
+                            content=render_template( 'pages/login.html', form=form, msg=msg ))
+
+# List all products
+@app.route('/products')
+def fetch_products():
+    # declare the product form
+    form = ProductForm(request.form)
+
+    # fetch all products from database
+    products = Product.query.all()
+    return render_template('layouts/default.html', 
+        content=render_template( 'pages/manage-products.html', products=products))
+
+# Add product
+@app.route('/products/add', methods=['GET','POST'])
+def add_product():
+    # add product to database
+    
+    # declare the Product Form
+    form = ProductForm(request.form)
+
+    msg = None
+
+    if request.method == 'GET': 
+        return render_template('layouts/default.html',
+                                content=render_template( 'pages/add-product.html', form=form, message=msg ))    
+    # check if both http method is POST and form is valid on submit
+    if form.validate_on_submit():
+        # assign form data to variables
+        name = request.form.get('name', '', type=str)
+        product_type = request.form.get('product_type', '', type=int) 
+        description    = request.form.get('description'   , '', type=str) 
+        imageurl    = request.form.get('imageurl'   , '', type=str)
+        # see if product already exists
+        product = Product.query.filter_by(name=name, producttype_id=product_type).first()
+        # 
+        if product:
+            msg = f'Error: A product named {product.name} already exists!'
+        else:
+            product = Product(name, description, product_type)
+            product.save()
+            msg = 'Product successfully created! Return to product page or add another product.'
+    else:
+        msg = 'I am sorry but the details you entered cannot be saved :('
+    
+    print (msg)
+    return render_template('layouts/default.html', 
+        content=render_template( 'pages/add-product.html', message=msg, form=form))        
+
+# List all requests
+@app.route('/requests')
+def requests():
+    return render_template('layouts/default.html', content=render_template( 'pages/manage-requests.html'))
+
+# Delete product in request
+@app.route('/products/delete/<id>')
+def delete_product(id):
+    # check if product is available
+    product = Product.query.filter_by(id=id).first()
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        msg = 'Product has been successfuly deleted!'
+    else:
+        msg = 'The product you want to delete does not exist.'
+    return redirect('/products')
+
+# Edit product in request
+@app.route('/products/edit/<id>', methods=['GET', 'POST'])
+def edit_product(id):
+    # declare the Product Form
+    form = ProductForm(request.form)
+    msg = None
+    # check if product already exists
+    product = Product.query.filter_by(id = id).first()
+
+    # update select component value
+    print(form.product_type)
+    form.product_type.default = product.producttype_id
+    if request.method == 'GET': 
+        return render_template('layouts/default.html',
+                                content=render_template('pages/edit-product.html', 
+                                form=form, 
+                                product=product, 
+                                message=msg))
+    # check if both http method is POST and form is valid on submit
+    if form.validate_on_submit():
+        # assign form data to variables
+        name            = request.form.get('name', '', type=str)
+        product_type    = request.form.get('product_type', '', type=int) 
+        description     = request.form.get('description' , '', type=str) 
+        imageurl        = request.form.get('imageurl', '', type=str)
+        # if the requested product exists
+        if product:
+            product.name = name
+            product.producttype_id = product_type
+            product.description = description
+            db.session().commit()
+            msg = 'Product successfully created! Return to product page or add another product.'            
+        else:
+            msg = f'Error: A product named {product.name} does not exist!'
+    else:
+        msg = 'I am sorry but the details you entered cannot be saved :('
+
+    return redirect('/products')
 
 # App main route + generic routing
 @app.route('/', defaults={'path': 'index.html'})

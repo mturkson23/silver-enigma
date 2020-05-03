@@ -47,14 +47,16 @@ class User(UserMixin, db.Model):
 class Product(db.Model):
     __table_args__ = {'extend_existing': True}
     id              = db.Column(db.Integer,    primary_key=True)
-    name            = db.Column(db.String(200), unique = True)
-    imageurl        = db.Column(db.String(24), unique = True, server_default = 'sample.png')
+    name            = db.Column(db.String(200))
+    imageurl        = db.Column(db.String(24), server_default = 'sample.png')
     description     = db.Column(db.Text, nullable=True)
-    producttype_id = db.Column(db.Integer, ForeignKey('producttype.id'))
+    producttype_id  = db.Column(db.Integer, ForeignKey('producttype.id'))
 
     stock = relationship("Stock", back_populates="product")
     request = relationship("Request", back_populates="product")
     producttype = relationship("Producttype", back_populates="product")
+
+    db.UniqueConstraint('name', 'producttype_id', name='unique_name_producttype_id')
 
     def __init__(self, name, description, producttype_id):
         self.name = name
@@ -133,7 +135,7 @@ class Producttype(db.Model):
         self.description = description
 
     def __repr__(self):
-        return '<Producttype %r - %r>' % (self.id) % (self.name)
+        return '%s' % (self.name)
 
     def save(self):
         # inject self into db session
@@ -155,7 +157,7 @@ class Requeststate(db.Model):
         self.description  = description
 
     def __repr__(self):
-        return '<Requeststate %r - %r>' % (self.id) % (self.name)
+        return '%s' % (self.name)
 
     def save(self):
         # inject self into db session
@@ -187,7 +189,7 @@ class Request(db.Model):
         self.state_id = state_id
 
     def __repr__(self):
-        return '<Request %r - %r>' % (self.id) % (self.product_id)
+        return '%s' % (self.product_id)
 
     def save(self):
         # inject self into db session
