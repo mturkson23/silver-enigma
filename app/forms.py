@@ -14,13 +14,14 @@ class LoginForm(FlaskForm):
 	password    = PasswordField(u'Password'        , validators=[DataRequired()])
 
 class RegisterForm(FlaskForm):
+	fullname    = StringField  (u'Full Name'  , validators=[DataRequired()])
 	username    = StringField  (u'Username'  , validators=[DataRequired()])
 	password    = PasswordField(u'Password'  , validators=[DataRequired()])
 	email       = StringField  (u'Email'     , validators=[DataRequired(), Email()])
 
 class ProductForm(FlaskForm):
 	name    		= StringField  (u'Name'  , validators=[DataRequired()])
-	product_type   = SelectField(u'Product Type', coerce=int, choices = [(1, 'Airtime'), (2, 'E-Cash')], validators=[DataRequired()])
+	product_type    = SelectField(u'Product Type', coerce=int)
 	description     = StringField  (u'Description', validators=[DataRequired()])	
 	imageurl 		= FileField (u'Product Icon')	
 
@@ -29,3 +30,7 @@ class StockForm(FlaskForm):
 	sell_price    		= DecimalField  (u'Selling Price'  , validators=[DataRequired()])
 	quantity    		= IntegerField  (u'Quantity'  , validators=[DataRequired()])
 	product   			= SelectField(u'Product', coerce=int)
+
+class RequestForm(FlaskForm):
+	quantity    		= IntegerField  (u'Quantity'  , validators=[DataRequired()])
+	stock_item   		= SelectField(u'Request Item', coerce=int)

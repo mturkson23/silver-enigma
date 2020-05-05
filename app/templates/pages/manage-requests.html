@@ -4,7 +4,7 @@
     <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
       <div class="container-fluid">
         <!-- Brand -->
-        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="/manage-requests.html">Manage Requests</a>
+        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="/requests">Manage Requests</a>
         <!-- Form -->
         <form class="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
           <div class="form-group mb-0">
@@ -36,7 +36,7 @@
         <div class="col">
           <div class="card shadow">
             <div class="card-header border-0">
-              <h3 class="mb-0">Employee requests for today</h3>
+              <h3 class="mb-0">Current Employee Requests</h3>
             </div>
             <div class="table-responsive">
               <table class="table align-items-center table-flush">
@@ -44,7 +44,7 @@
                   <tr>
                     <th scope="col" class="text-center">Employee</th>
                     <th scope="col" class="text-center">Item</th>
-                    <th scope="col" class="text-center">Unit Cost</th>
+                    <!-- <th scope="col" class="text-center">Unit Cost</th> -->
                     <th scope="col" class="text-center">Quantity</th>
                     <th scope="col" class="text-center">Total Cost</th>
                     <th scope="col" class="text-center">State</th>
@@ -52,6 +52,7 @@
                   </tr>
                 </thead>
                 <tbody>
+                  {% for xrequest in xrequests %}
                   <tr>
                     <th scope="row">
                       <div class="media align-items-center">
@@ -59,22 +60,19 @@
                           <img alt="Image placeholder" src="/static/files/photos/{{ current_user.photo }}">
                         </a>
                         <div class="media-body">
-                          <span class="mb-0 text-sm">{{ current_user.username }}</span>
+                          <span class="mb-0 text-sm">{{ current_user.fullname }}</span>
                         </div>
                       </div>
                     </th>                    
                     <td scope="row">
                       <div class="media align-items-center">
                         <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/assets/img/theme/mtn.png">
+                          <img alt="Image placeholder" src="/static/files/products/{{ xrequest.stock.product.imageurl }}">
                         </a>
                         <div class="media-body">
-                          <span class="mb-0 text-sm">MTN Voucher</span>
+                          <span class="mb-0 text-sm">{{xrequest.stock.product.name}}</span>
                         </div>
                       </div>
-                    </td>
-                    <td class="text-center">
-                      GHS 10
                     </td>
                     <td class="text-center">
                       20
@@ -84,7 +82,7 @@
                     </td>
                     <td class="text-center">
                       <span class="badge badge-dot mr-4">
-                        <i class="bg-warning"></i> pending
+                        <i class="{{xrequest.requeststate.code}}"></i> {{xrequest.requeststate.name}}
                       </span>
                     </td>
                     <td class="text-right">
@@ -93,153 +91,13 @@
                           <i class="fas fa-ellipsis-v"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                          <a class="dropdown-item" href="#">Approve Request</a>
-                          <a class="dropdown-item" href="#">Deny Request</a>
+                          <a class="dropdown-item" href="/requests/approve/{{xrequest.id}}">Approve Request</a>
+                          <a class="dropdown-item" href="/requests/decline/{{xrequest.id}}">Decline Request</a>
                         </div>
                       </div>
                     </td>
                   </tr>
-                  <tr>
-                    <th scope="row">
-                      <div class="media align-items-center">
-                        <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/files/photos/{{ current_user.photo }}">
-                        </a>
-                        <div class="media-body">
-                          <span class="mb-0 text-sm">{{ current_user.username }}</span>
-                        </div>
-                      </div>
-                    </th>  
-                    <td scope="row">
-                      <div class="media align-items-center">
-                        <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/assets/img/theme/vodafone.png">
-                        </a>
-                        <div class="media-body">
-                          <span class="mb-0 text-sm">Vodafone Voucher</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-center">
-                      GHS 10
-                    </td>
-                    <td class="text-center">
-                      20
-                    </td>
-                    <td class="text-center">
-                      GHS 200
-                    </td>
-                    <td class="text-center">
-                      <span class="badge badge-dot mr-4">
-                        <i class="bg-warning"></i> pending
-                      </span>
-                    </td>
-                    <td class="text-right">
-                      <div class="dropdown">
-                        <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          <i class="fas fa-ellipsis-v"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                          <a class="dropdown-item" href="#">Approve Request</a>
-                          <a class="dropdown-item" href="#">Deny Request</a>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">
-                      <div class="media align-items-center">
-                        <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/files/photos/{{ current_user.photo }}">
-                        </a>
-                        <div class="media-body">
-                          <span class="mb-0 text-sm">{{ current_user.username }}</span>
-                        </div>
-                      </div>
-                    </th>  
-                    <td scope="row">
-                      <div class="media align-items-center">
-                        <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/assets/img/theme/mtn.png">
-                        </a>
-                        <div class="media-body">
-                          <span class="mb-0 text-sm">MTN Voucher</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-center">
-                      GHS 50
-                    </td>
-                    <td class="text-center">
-                      20
-                    </td>
-                    <td class="text-center">
-                      GHS 1,000
-                    </td>
-                    <td class="text-center">
-                      <span class="badge badge-dot mr-4">
-                        <i class="bg-warning"></i> pending
-                      </span>
-                    </td>
-                    <td class="text-right">
-                      <div class="dropdown">
-                        <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          <i class="fas fa-ellipsis-v"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                          <a class="dropdown-item" href="#">Approve Request</a>
-                          <a class="dropdown-item" href="#">Deny Request</a>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">
-                      <div class="media align-items-center">
-                        <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/files/photos/{{ current_user.photo }}">
-                        </a>
-                        <div class="media-body">
-                          <span class="mb-0 text-sm">{{ current_user.username }}</span>
-                        </div>
-                      </div>
-                    </th>
-                    <td scope="row">
-                      <div class="media align-items-center">
-                        <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="AirtelTigo voucher" src="/static/assets/img/theme/airteltigo.png">
-                        </a>
-                        <div class="media-body">
-                          <span class="mb-0 text-sm">AirtelTigo Voucher</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-center">
-                      GHS 10
-                    </td>
-                    <td class="text-center">
-                      20
-                    </td>
-                    <td class="text-center">
-                      GHS 200
-                    </td>
-                    <td class="text-center">
-                      <span class="badge badge-dot mr-4">
-                        <i class="bg-success"></i> approved
-                      </span>
-                    </td>
-                    <td class="text-right">
-                      <div class="dropdown">
-                        <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          <i class="fas fa-ellipsis-v"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                          <a class="dropdown-item" href="#">Approve Request</a>
-                          <a class="dropdown-item" href="#">Deny Request</a>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>                                                      
+                  {% endfor %}
                 </tbody>
               </table>
             </div>

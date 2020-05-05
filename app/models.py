@@ -4,6 +4,7 @@ License: MIT
 Copyright (c) 2019 - present AppSeed.us
 """
 
+import datetime
 from app         import db
 from flask_login import UserMixin
 from sqlalchemy import ForeignKey
@@ -24,12 +25,13 @@ class User(UserMixin, db.Model):
 
     request = relationship("Request", back_populates = "user")
 
-    def __init__(self, username, email, password, photourl = None):
+    def __init__(self, fullname, username, email, password, photourl = None):
+        self.fullname       = fullname
         self.username       = username
-        self.password   = password
-        self.email      = email
-        self.staffno    = str(random.randint(100000,999999))
-        self.photo      = photourl if photourl is not None else 'sample.png'
+        self.password       = password
+        self.email          = email
+        self.staffno        = str(random.randint(100000,999999))
+        self.photo          = photourl if photourl is not None else 'sample.png'
 
     def __repr__(self):
         return '<User %r - %s>' % (self.id) % (self.email)
@@ -53,7 +55,7 @@ class Product(db.Model):
     producttype_id  = db.Column(db.Integer, ForeignKey('producttype.id'))
 
     stock = relationship("Stock", back_populates="product")
-    request = relationship("Request", back_populates="product")
+    # request = relationship("Request", back_populates="product")
     producttype = relationship("Producttype", back_populates="product")
 
     db.UniqueConstraint('name', 'producttype_id', name='unique_name_producttype_id')
@@ -82,6 +84,7 @@ class Stock(db.Model):
     product_id  = db.Column(db.Integer, ForeignKey('product.id'))
 
     product = relationship("Product", back_populates="stock")
+    request = relationship("Request", back_populates="stock")
 
     def __init__(self, cost_price, sell_price, quantity, product_id):
         self.cost_price = cost_price
@@ -90,7 +93,7 @@ class Stock(db.Model):
         self.product_id  = product_id
 
     def __repr__(self):
-        return '%s' % (self.product)
+        return '%s (GHS %s)' % (self.product, self.sell_price)
 
     def save(self):
         # inject self into db session
@@ -148,6 +151,7 @@ class Requeststate(db.Model):
     __table_args__ = {'extend_existing': True}
     id           = db.Column(db.Integer, primary_key=True)
     name         = db.Column(db.String(100))
+    code         = db.Column(db.String(25))
     description  = db.Column(db.String(225))
 
     request = relationship("Request", back_populates="requeststate")
@@ -169,27 +173,31 @@ class Requeststate(db.Model):
 class Request(db.Model):
     __tablename__ = 'request'
     __table_args__ = {'extend_existing': True}
+
     id              = db.Column(db.Integer, primary_key=True)
     user_id         = db.Column(db.Integer, ForeignKey('user.id'))
-    product_id      = db.Column(db.Integer, ForeignKey('product.id'))
+    stock_id        = db.Column(db.Integer, ForeignKey('stock.id'))
     requesttype_id  = db.Column(db.Integer, ForeignKey('requesttype.id'))
     quantity        = db.Column(db.Integer)
     state_id        = db.Column(db.Integer, ForeignKey('requeststate.id'))
+    stamp           = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    date_created    = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="request")
-    product = relationship("Product", back_populates="request")
+    # product = relationship("Product", back_populates="request")
+    stock = relationship("Stock", back_populates="request")
     requesttype = relationship("Requesttype", back_populates="request")
     requeststate = relationship("Requeststate", back_populates="request")
 
-    def __init__(self, user_id, product_id, requesttype_id, quantity, state_id):
+    def __init__(self, user_id, stock_id, requesttype_id, quantity, state_id):
         self.user_id = user_id
-        self.product_id  = product_id
+        self.stock_id  = stock_id
         self.requesttype_id  = requesttype_id
         self.quantity = quantity
         self.state_id = state_id
 
     def __repr__(self):
-        return '%s' % (self.product_id)
+        return '%s' % (self.stock_id)
 
     def save(self):
         # inject self into db session

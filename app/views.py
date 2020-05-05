@@ -14,8 +14,8 @@ from werkzeug.exceptions import HTTPException, NotFound, abort
 
 # App modules
 from app        import app, lm, db, bc
-from app.models import User, Product, Stock
-from app.forms  import LoginForm, RegisterForm, ProductForm, StockForm
+from app.models import User, Product, Stock, Request, Producttype, Requeststate
+from app.forms  import LoginForm, RegisterForm, ProductForm, StockForm, RequestForm
 
 # provide login manager with load_user callback
 @lm.user_loader
@@ -34,18 +34,15 @@ def register():
     
     # declare the Registration Form
     form = RegisterForm(request.form)
-
     msg = None
-
     if request.method == 'GET': 
-
         return render_template('layouts/auth-default.html',
                                 content=render_template( 'pages/register.html', form=form, msg=msg ) )
 
     # check if both http method is POST and form is valid on submit
     if form.validate_on_submit():
-
         # assign form data to variables
+        fullname = request.form.get('fullname', '', type=str)
         username = request.form.get('username', '', type=str)
         password = request.form.get('password', '', type=str) 
         email    = request.form.get('email'   , '', type=str) 
@@ -58,12 +55,11 @@ def register():
 
         if user or user_by_email:
             msg = 'Error: User exists!'
-        
         else:         
 
             pw_hash = password #bc.generate_password_hash(password)
 
-            user = User(username, email, pw_hash)
+            user = User(fullname, username, email, pw_hash)
 
             user.save()
 
@@ -221,7 +217,7 @@ def add_product():
     
     # declare the Product Form
     form = ProductForm(request.form)
-
+    form.product_type.choices = [(x.id, x) for x in Producttype.query.all()]
     msg = None
 
     if request.method == 'GET': 
@@ -248,12 +244,98 @@ def add_product():
     
     print (msg)
     return render_template('layouts/default.html', 
-        content=render_template( 'pages/add-product.html', message=msg, form=form))        
+        content=render_template( 'pages/add-product.html', message=msg, form=form))
 
 # List all requests
 @app.route('/requests')
-def requests():
-    return render_template('layouts/default.html', content=render_template( 'pages/manage-requests.html'))
+def manage_requests():
+    # declare the Request Form
+    # form = RequestForm(request.form)
+    # form.stock_item.choices = [(x.id, x) for x in Stock.query.all()]
+    msg = None
+
+    xrequests = Request.query.all()
+
+    print (xrequests)
+    return render_template('layouts/default.html', 
+        content=render_template( 'pages/manage-requests.html', xrequests= xrequests, msg = msg ))
+
+
+# List all employee requests
+@app.route('/employee-requests')
+def employee_requests():
+    # declare the Request Form
+    form = RequestForm(request.form)
+    form.stock_item.choices = [(x.id, x) for x in Stock.query.all()]
+    msg = None
+
+    requests = Request.query.all()
+    return render_template('layouts/default.html', 
+        content=render_template( 'pages/employee-requests.html', requests= requests, form = form, msg = msg ))
+
+# Add employee request
+@app.route('/employee-requests/add', methods=['POST'])
+def add_employee_xrequest():
+    # add employee request to database
+    # declare the Request Form
+    form = RequestForm(request.form)
+    form.stock_item.choices = [(x.id, x) for x in Stock.query.all()]
+    msg = None
+    # check if both http method is POST and form is valid on submit
+    if form.validate_on_submit():
+        # assign form data to variables
+        stock_item = request.form.get('stock_item', '', type=int)
+        quantity = request.form.get('quantity', '', type=int) 
+        # see if request already exists
+        # TODO: filter by datecreated as well
+        # request = Request.query.filter_by(user_id=current_user.id, product_id=stock_item, quantity = quantity).first()
+        xrequest = Request(current_user.id, stock_item, 1, quantity, 1)
+        xrequest.save()
+        msg = 'Request successfully created!'
+    else:
+        msg = 'I am sorry but the details you entered cannot be saved :('
+    return redirect('/employee-requests')
+
+# Delete request
+@app.route('/employee-requests/delete/<id>')
+def delete_employee_request(id):
+    # check if request is available
+    xrequest = Request.query.filter_by(id=id).first()
+    if xrequest:
+        db.session.delete(xrequest)
+        db.session.commit()
+        msg = 'The request has been successfuly deleted!'
+    else:
+        msg = 'The request you want to delete does not exist.'
+    return redirect('/employee-requests')
+
+# approve request
+@app.route('/requests/approve/<id>')
+def approve_employee_request(id):
+    # check if request is available
+    xrequest = Request.query.filter_by(id=id).first()
+    approved_state = Requeststate.query.filter_by(code= 'approved').first()
+    if xrequest:
+        xrequest.state_id = approved_state.id
+        db.session.commit()
+        msg = 'This request has been approved!'
+    else:
+        msg = 'The request you want to approve does not exist.'
+    return redirect('/requests')
+
+# decline request
+@app.route('/requests/decline/<id>')
+def decline_employee_request(id):
+    # check if request is available
+    xrequest = Request.query.filter_by(id=id).first()
+    declined_state = Requeststate.query.filter_by(code= 'declined').first()
+    if xrequest:
+        xrequest.state_id = declined_state.id
+        db.session.commit()
+        # msg = 'This request has been approved!'
+    # else:
+        # msg = 'The request you want to approve does not exist.'
+    return redirect('/requests')
 
 # Delete product in request
 @app.route('/products/delete/<id>')
@@ -274,6 +356,7 @@ def edit_product(id):
     # declare the Product Form
     form = ProductForm(request.form)
     msg = None
+    print (current_user)
     # check if product already exists
     product = Product.query.filter_by(id = id).first()
 
