@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from flask_wtf          import FlaskForm
 from flask_wtf.file     import FileField, FileRequired
-from wtforms            import StringField, SelectField, SubmitField, PasswordField, DecimalField, IntegerField
+from wtforms            import TextAreaField, StringField, SelectField, SubmitField, PasswordField, DecimalField, IntegerField
 from wtforms.validators import InputRequired, Email, DataRequired
 
 class LoginForm(FlaskForm):
@@ -34,3 +34,13 @@ class StockForm(FlaskForm):
 class RequestForm(FlaskForm):
 	quantity    		= IntegerField  (u'Quantity'  , validators=[DataRequired()])
 	stock_item   		= SelectField(u'Request Item', coerce=int)
+
+class UserForm(FlaskForm):
+	fullname    = StringField (u'Full Name', validators=[DataRequired()])
+	username    = StringField (u'Username', validators=[DataRequired()])
+	password    = PasswordField(u'Password', validators=[DataRequired()])
+	email       = StringField (u'Email', validators=[Email()])
+	phone_no     = StringField (u'Phone No.', validators=[DataRequired()])
+	address     = TextAreaField (u'Address')
+	staff_no     = StringField (u'Staff No.')
+	role     = SelectField (u'Role', coerce=int)

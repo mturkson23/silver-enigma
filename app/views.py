@@ -14,8 +14,8 @@ from werkzeug.exceptions import HTTPException, NotFound, abort
 
 # App modules
 from app        import app, lm, db, bc
-from app.models import User, Product, Stock, Request, Producttype, Requeststate
-from app.forms  import LoginForm, RegisterForm, ProductForm, StockForm, RequestForm
+from app.models import User, Product, Stock, Request, Producttype, Requeststate, User, Role
+from app.forms  import LoginForm, RegisterForm, ProductForm, StockForm, RequestForm, UserForm
 
 # provide login manager with load_user callback
 @lm.user_loader
@@ -98,8 +98,7 @@ def login():
 
         if user:
             
-            #if bc.check_password_hash(user.password, password):
-            if user.password == password:
+            if bc.check_password_hash(user.password, password):
                 login_user(user)
                 return redirect(url_for('index'))
             else:
@@ -246,6 +245,17 @@ def add_product():
     return render_template('layouts/default.html', 
         content=render_template( 'pages/add-product.html', message=msg, form=form))
 
+# List all users
+@app.route('/users')
+def manage_users():
+    # declare the Request Form
+    # form = RequestForm(request.form)
+    # form.stock_item.choices = [(x.id, x) for x in Stock.query.all()]
+    msg = None
+    users = User.query.all()
+    return render_template('layouts/default.html', 
+        content=render_template( 'pages/manage-users.html', users= users, msg = msg ))
+
 # List all requests
 @app.route('/requests')
 def manage_requests():
@@ -255,11 +265,8 @@ def manage_requests():
     msg = None
 
     xrequests = Request.query.all()
-
-    print (xrequests)
     return render_template('layouts/default.html', 
         content=render_template( 'pages/manage-requests.html', xrequests= xrequests, msg = msg ))
-
 
 # List all employee requests
 @app.route('/employee-requests')
@@ -393,7 +400,6 @@ def edit_product(id):
 @app.route('/', defaults={'path': 'index.html'})
 @app.route('/<path>')
 def index(path):
-    # print (current_user)
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
     content = None
@@ -408,3 +414,57 @@ def index(path):
 @app.route('/sitemap.xml')
 def sitemap():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'sitemap.xml')
+
+
+# Add users
+@app.route('/users/add', methods=['GET','POST'])
+def add_users():
+    # add users to database
+    
+    # declare the user form
+    form = UserForm(request.form)
+    form.role.choices = [(x.id, x) for x in Role.query.all()]
+    msg = None
+
+    if request.method == 'GET': 
+        return render_template('layouts/default.html',
+                                content=render_template( 'pages/add-user.html', form=form, message=msg ))    
+    # check if both http method is POST and form is valid on submit
+    if form.validate_on_submit():
+        # assign form data to variables
+        name = request.form.get('fullname', '', type=str)
+        unm = request.form.get('username', '', type=str)
+        pwd = request.form.get('password', '', type=str)
+        email = request.form.get('email', '', type=str)
+        phone_no = request.form.get('phone_no', '', type=str)
+        address = request.form.get('address', '', type=str)
+        staff_no = request.form.get('staff_no', '', type=str) 
+        role_id    = request.form.get('role'   , '', type=int) 
+        # see if user already exists
+        user = User.query.filter_by(username=unm).first()
+        # 
+        if user:
+            msg = f'Error: A user with the username {user.username} already exists!'
+        else:
+            user = User(name, unm, email, pwd, phone_no, address, staff_no, role_id)
+            user.save()
+            msg = 'User successfully created! <br/> Return to viewing user list or add another user.'
+    else:
+        msg = 'I am sorry but the details you entered cannot be saved :('
+    
+    print (msg)
+    return render_template('layouts/default.html', 
+        content=render_template( 'pages/add-user.html', message=msg, form=form))
+
+# Delete user in request
+@app.route('/users/delete/<id>')
+def delete_user(id):
+    # check if user is available
+    user = User.query.filter_by(id=id).first()
+    if user:
+        msg = f'User: {user.username} has been successfuly deleted!'
+        db.session.delete(user)
+        db.session.commit()
+    else:
+        msg = 'The user you want to delete does not exist.'
+    return redirect('/users')

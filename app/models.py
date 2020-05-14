@@ -1,11 +1,7 @@
 # -*- encoding: utf-8 -*-
-"""
-License: MIT
-Copyright (c) 2019 - present AppSeed.us
-"""
 
 import datetime
-from app         import db
+from app         import db, bc
 from flask_login import UserMixin
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -20,17 +16,24 @@ class User(UserMixin, db.Model):
     fullname = db.Column(db.String(200), unique = True)
     email    = db.Column(db.String(120), unique = True)
     password = db.Column(db.String(80))
+    phoneno = db.Column(db.String(20), server_default = '')
+    address = db.Column(db.String(80), server_default = '')
     staffno  = db.Column(db.String(20), unique = True)
     photo    = db.Column(db.String(20), server_default = 'sample.png')
+    role_id  = db.Column(db.Integer, ForeignKey('role.id'))
 
     request = relationship("Request", back_populates = "user")
+    role = relationship("Role", back_populates="user")
 
-    def __init__(self, fullname, username, email, password, photourl = None):
+    def __init__(self, fullname, username, email, password, phoneno = None, address = None, staff_no = '', role_id = 1, photourl = None):
         self.fullname       = fullname
         self.username       = username
-        self.password       = password
+        self.password       = bc.generate_password_hash(password).decode('utf-8')
         self.email          = email
-        self.staffno        = str(random.randint(100000,999999))
+        self.phoneno        = phoneno
+        self.address        = address
+        self.role_id        = role_id
+        self.staffno        = str(random.randint(100000,999999)) if staff_no == '' else staff_no
         self.photo          = photourl if photourl is not None else 'sample.png'
 
     def __repr__(self):
@@ -42,6 +45,29 @@ class User(UserMixin, db.Model):
     def save(self):
         # inject self into db session
         db.session.add ( self )
+        # commit change and save the object
+        db.session.commit()
+        return self
+
+class Role(db.Model):
+    __tablename__ = 'role'
+    __table_args__ = {'extend_existing': True}
+    id           = db.Column(db.Integer, primary_key=True)
+    name         = db.Column(db.String(100))
+    description  = db.Column(db.String(225))
+
+    user = relationship("User", back_populates="role")
+
+    def __init__(self, name, description):
+        self.name        = name
+        self.description = description
+
+    def __repr__(self):
+        return '%s' % (self.name)
+
+    def save(self):
+        # inject self into db session
+        db.session.add (self)
         # commit change and save the object
         db.session.commit()
         return self
