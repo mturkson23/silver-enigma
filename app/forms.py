@@ -1,12 +1,8 @@
 # -*- encoding: utf-8 -*-
-"""
-License: MIT
-Copyright (c) 2019 - present AppSeed.us
-"""
 
 from flask_wtf          import FlaskForm
 from flask_wtf.file     import FileField, FileRequired
-from wtforms            import TextAreaField, StringField, SelectField, SubmitField, PasswordField, DecimalField, IntegerField
+from wtforms            import TextAreaField, StringField, SelectField, SubmitField, PasswordField, DecimalField, IntegerField, HiddenField
 from wtforms.validators import InputRequired, Email, DataRequired
 
 class LoginForm(FlaskForm):
@@ -40,7 +36,13 @@ class UserForm(FlaskForm):
 	username    = StringField (u'Username', validators=[DataRequired()])
 	password    = PasswordField(u'Password', validators=[DataRequired()])
 	email       = StringField (u'Email', validators=[Email()])
-	phone_no     = StringField (u'Phone No.', validators=[DataRequired()])
+	phone_no    = StringField (u'Phone No.', validators=[DataRequired()])
 	address     = TextAreaField (u'Address')
-	staff_no     = StringField (u'Staff No.')
-	role     = SelectField (u'Role', coerce=int)
+	staff_no    = StringField (u'Staff No.')
+	role     	= SelectField (u'Role', coerce=int)
+	image	 	= FileField(validators=[])
+	idcard 		= FileField(validators=[])
+
+class SaleForm(FlaskForm):
+	quantity    		= IntegerField (u'Quantity'  , validators=[DataRequired()])
+	request_item   		= HiddenField()
