@@ -8,14 +8,16 @@ Copyright (c) 2019 - present AppSeed.us
 import os, logging 
 
 # Flask modules
-from flask               import render_template, request, url_for, redirect, send_from_directory
+from flask               import render_template, request, url_for, redirect, send_from_directory, flash
 from flask_login         import login_user, logout_user, current_user, login_required
 from werkzeug.exceptions import HTTPException, NotFound, abort
+from werkzeug.utils import secure_filename
 
 # App modules
 from app        import app, lm, db, bc
-from app.models import User, Product, Stock, Request, Producttype, Requeststate, User, Role
-from app.forms  import LoginForm, RegisterForm, ProductForm, StockForm, RequestForm, UserForm
+from app.models import User, Product, Stock, Request, Producttype, Requeststate, User, Role, Sale
+from app.forms  import LoginForm, RegisterForm, ProductForm, StockForm, RequestForm, UserForm, SaleForm
+from sqlalchemy import func
 
 # provide login manager with load_user callback
 @lm.user_loader
@@ -54,7 +56,7 @@ def register():
         user_by_email = User.query.filter_by(email=email).first()
 
         if user or user_by_email:
-            msg = 'Error: User exists!'
+            flash('Error: User exists!')
         else:         
 
             pw_hash = password #bc.generate_password_hash(password)
@@ -63,10 +65,10 @@ def register():
 
             user.save()
 
-            msg = 'User created, please <a href="' + url_for('login') + '">login</a>'     
+            flash('User created, please <a href="' + url_for('login') + '">login</a>')
 
     else:
-        msg = 'Input error'     
+        flash('Input error')
 
     return render_template('layouts/auth-default.html',
                             content=render_template( 'pages/register.html', form=form, msg=msg ) )
@@ -79,7 +81,6 @@ def stats(action):
 # Authenticate user
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    
     # Declare the login form
     form = LoginForm(request.form)
 
@@ -102,9 +103,9 @@ def login():
                 login_user(user)
                 return redirect(url_for('index'))
             else:
-                msg = "Wrong password. Please try again."
+                flash("Wrong password. Please try again.")
         else:
-            msg = "Invalid Credentials"
+            flash("Invalid Credentials")
 
     return render_template('layouts/auth-default.html',
                             content=render_template( 'pages/login.html', form=form, msg=msg ))
@@ -112,6 +113,8 @@ def login():
 # List all products
 @app.route('/products')
 def fetch_products():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # fetch all products from database
     products = Product.query.all()
     return render_template('layouts/default.html', 
@@ -120,6 +123,8 @@ def fetch_products():
 # List all stock items
 @app.route('/stock')
 def fetch_stock():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # fetch all stock from database
     stock = Stock.query.all()
     return render_template('layouts/default.html', 
@@ -128,6 +133,8 @@ def fetch_stock():
 # Add stock
 @app.route('/stock/add', methods=['GET','POST'])
 def add_stock():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # add stock to database
     # declare the product form
     form = StockForm(request.form)
@@ -148,33 +155,37 @@ def add_stock():
         stock = Stock.query.filter_by(product_id=product_id, quantity=quantity).first()
         # 
         if stock:
-            msg = f'Error: A stock entry for {stock.quantity} {stock.product} already exists!'
+            flash(f'Error: A stock entry for {stock.quantity} {stock.product} already exists!')
         else:
             stock = Stock(cost_price, sell_price, quantity, product_id)
             stock.save()
-            msg = 'Stock item successfully created! Return to stock page or add another stock.'
+            flash('Stock item successfully created! Return to stock page or add another stock.')
     else:
-        msg = 'I am sorry but the details you entered cannot be saved :('
-    print (msg)
+        flash('I am sorry but the details you entered cannot be saved :(')
+    # print (msg)
     return render_template('layouts/default.html', 
         content=render_template( 'pages/add-stock.html', message=msg, form=form))
 
 # Delete stock item
 @app.route('/stock/delete/<id>')
 def delete_stock(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # check if stock item exists
     stock = Stock.query.filter_by(id=id).first()
     if stock:
         db.session.delete(stock)
         db.session.commit()
-        msg = 'Stock item has been successfuly deleted!'
+        flash('Stock item has been successfuly deleted!')
     else:
-        msg = 'The stock item you want to delete does not exist.'
+        flash('The stock item you want to delete does not exist.')
     return redirect('/stock')
 
 # Edit stock in request
 @app.route('/stock/edit/<id>', methods=['GET', 'POST'])
 def edit_stock(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # declare the Stock Form
     form = StockForm(request.form)
     form.product.choices = [(x.id, x.name) for x in Product.query.all()]
@@ -202,16 +213,18 @@ def edit_stock(id):
             stock.quantity = quantity
             stock.product_id = product_id
             db.session().commit()
-            msg = 'Stock item successfully created! Return to stock page or make further changes.'            
+            flash('Stock item successfully created! Return to stock page or make further changes.')
         else:
-            msg = f'Error: A stock entry for {stock.quantity} {stock.product} already exists'
+            flash(f'Error: A stock entry for {stock.quantity} {stock.product} already exists')
     else:
-        msg = 'I am sorry but the details you entered cannot be saved :('
+        flash('I am sorry but the details you entered cannot be saved :(')
     return redirect('/stock')
 
 # Add product
 @app.route('/products/add', methods=['GET','POST'])
 def add_product():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # add product to database
     
     # declare the Product Form
@@ -233,13 +246,13 @@ def add_product():
         product = Product.query.filter_by(name=name, producttype_id=product_type).first()
         # 
         if product:
-            msg = f'Error: A product named {product.name} already exists!'
+            flash(f'Error: A product named {product.name} already exists!')
         else:
             product = Product(name, description, product_type)
             product.save()
-            msg = 'Product successfully created! Return to product page or add another product.'
+            flash('Product successfully created! Return to product page or add another product.')
     else:
-        msg = 'I am sorry but the details you entered cannot be saved :('
+        flash('I am sorry but the details you entered cannot be saved :(')
     
     print (msg)
     return render_template('layouts/default.html', 
@@ -248,6 +261,8 @@ def add_product():
 # List all users
 @app.route('/users')
 def manage_users():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # declare the Request Form
     # form = RequestForm(request.form)
     # form.stock_item.choices = [(x.id, x) for x in Stock.query.all()]
@@ -259,6 +274,8 @@ def manage_users():
 # List all requests
 @app.route('/requests')
 def manage_requests():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # declare the Request Form
     # form = RequestForm(request.form)
     # form.stock_item.choices = [(x.id, x) for x in Stock.query.all()]
@@ -271,18 +288,22 @@ def manage_requests():
 # List all employee requests
 @app.route('/employee-requests')
 def employee_requests():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # declare the Request Form
     form = RequestForm(request.form)
     form.stock_item.choices = [(x.id, x) for x in Stock.query.all()]
     msg = None
 
-    requests = Request.query.all()
+    xrequests = Request.query.all()
     return render_template('layouts/default.html', 
-        content=render_template( 'pages/employee-requests.html', requests= requests, form = form, msg = msg ))
+        content=render_template( 'pages/employee-requests.html', requests= xrequests, form = form, msg = msg ))
 
 # Add employee request
 @app.route('/employee-requests/add', methods=['POST'])
 def add_employee_xrequest():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # add employee request to database
     # declare the Request Form
     form = RequestForm(request.form)
@@ -298,48 +319,105 @@ def add_employee_xrequest():
         # request = Request.query.filter_by(user_id=current_user.id, product_id=stock_item, quantity = quantity).first()
         xrequest = Request(current_user.id, stock_item, 1, quantity, 1)
         xrequest.save()
-        msg = 'Request successfully created!'
+        flash('Request successfully created!')
     else:
-        msg = 'I am sorry but the details you entered cannot be saved :('
+        flash('I am sorry but the details you entered cannot be saved :(')
     return redirect('/employee-requests')
 
 # Delete request
 @app.route('/employee-requests/delete/<id>')
 def delete_employee_request(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # check if request is available
-    xrequest = Request.query.filter_by(id=id).first()
+    xrequest = Request.query.filter_by(id=id, user_id=current_user.id).first()
     if xrequest:
         db.session.delete(xrequest)
         db.session.commit()
-        msg = 'The request has been successfuly deleted!'
+        flash('The request has been successfuly deleted!')
     else:
-        msg = 'The request you want to delete does not exist.'
+        flash('The request you want to delete does not exist!')
     return redirect('/employee-requests')
+
+# record sales on employee request
+@app.route('/employee-requests/sales/<id>')
+def sales_employee_request(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
+    # check if request is available
+    xrequest = Request.query.filter_by(id=id, user_id=current_user.id).first()
+    if xrequest:
+        form = SaleForm(request.form, request_item = xrequest.id)
+        msg = None
+        # flash()
+        sales = Sale.query.filter_by(request_id = id)
+        sold = Sale.query.with_entities(func.sum(Sale.quantity).label("total")).filter_by(request_id = id).first()
+        xsold_total = sold.total if sold.total else 0
+        qty_remaining = xrequest.quantity - xsold_total
+        balance = qty_remaining*xrequest.stock.sell_price
+        return render_template('layouts/default.html', 
+            content=render_template('pages/employee-sales.html', 
+            balance = balance, 
+            xrequest = xrequest,
+            sales= sales,
+            quantity_remaining = qty_remaining,
+            form = form,
+            msg = msg ))
+    else:
+        flash('The request you want to record sales on does not exist!')
+    return redirect('/employee-requests')            
+
+# Add employee request
+@app.route('/employee-sales/add', methods=['POST'])
+def add_employee_sales():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
+    # add employee sales to database
+    # declare the Sale Form
+    form = SaleForm(request.form)
+    msg = None
+    # check if both http method is POST and form is valid on submit
+    if form.validate_on_submit():
+        # assign form data to variables
+        quantity = request.form.get('quantity', 0, type=int)
+        request_id = request.form.get('request_item', 0, type=int)
+        # request_id = int(form.request_item.value)
+        # print (request_id)
+        sale = Sale(current_user.id, request_id, quantity)
+        sale.save()
+        flash('Sale entry successfully created!')
+    else:
+        flash('I am sorry but the details you entered cannot be saved :(')
+    return redirect(f'/employee-requests/sales/{request_id}')
 
 # approve request
 @app.route('/requests/approve/<id>')
 def approve_employee_request(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # check if request is available
     xrequest = Request.query.filter_by(id=id).first()
     approved_state = Requeststate.query.filter_by(code= 'approved').first()
     if xrequest:
         xrequest.state_id = approved_state.id
         db.session.commit()
-        msg = 'This request has been approved!'
+        flash('This request has been approved!')
     else:
-        msg = 'The request you want to approve does not exist.'
+        flash('The request you want to approve does not exist.')
     return redirect('/requests')
 
 # decline request
 @app.route('/requests/decline/<id>')
 def decline_employee_request(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # check if request is available
     xrequest = Request.query.filter_by(id=id).first()
     declined_state = Requeststate.query.filter_by(code= 'declined').first()
     if xrequest:
         xrequest.state_id = declined_state.id
         db.session.commit()
-        # msg = 'This request has been approved!'
+        flash('This request has been declined!')
     # else:
         # msg = 'The request you want to approve does not exist.'
     return redirect('/requests')
@@ -347,19 +425,23 @@ def decline_employee_request(id):
 # Delete product in request
 @app.route('/products/delete/<id>')
 def delete_product(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # check if product is available
     product = Product.query.filter_by(id=id).first()
     if product:
         db.session.delete(product)
         db.session.commit()
-        msg = 'Product has been successfuly deleted!'
+        flash('Product has been successfuly deleted!')
     else:
-        msg = 'The product you want to delete does not exist.'
+        flash('The product you want to delete does not exist.')
     return redirect('/products')
 
 # Edit product in request
 @app.route('/products/edit/<id>', methods=['GET', 'POST'])
 def edit_product(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # declare the Product Form
     form = ProductForm(request.form)
     msg = None
@@ -389,11 +471,11 @@ def edit_product(id):
             product.producttype_id = product_type
             product.description = description
             db.session().commit()
-            msg = 'Product successfully edited! Return to product page or make further changes.'            
+            flash('Product successfully edited! Return to product page or make further changes.')
         else:
-            msg = f'Error: A product named {product.name} does not exist!'
+            flash(f'Error: A product named {product.name} does not exist!')
     else:
-        msg = 'I am sorry but the details you entered cannot be saved :('
+        flash('I am sorry but the details you entered cannot be saved :(')
     return redirect('/products')
 
 # App main route + generic routing
@@ -419,6 +501,8 @@ def sitemap():
 # Add users
 @app.route('/users/add', methods=['GET','POST'])
 def add_users():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # add users to database
     
     # declare the user form
@@ -431,6 +515,9 @@ def add_users():
                                 content=render_template( 'pages/add-user.html', form=form, message=msg ))    
     # check if both http method is POST and form is valid on submit
     if form.validate_on_submit():
+        files_dir = os.path.join(
+            os.path.dirname(app.instance_path), 'app/static/files'
+        )
         # assign form data to variables
         name = request.form.get('fullname', '', type=str)
         unm = request.form.get('username', '', type=str)
@@ -438,33 +525,46 @@ def add_users():
         email = request.form.get('email', '', type=str)
         phone_no = request.form.get('phone_no', '', type=str)
         address = request.form.get('address', '', type=str)
-        staff_no = request.form.get('staff_no', '', type=str) 
-        role_id    = request.form.get('role'   , '', type=int) 
+        staff_no = request.form.get('staff_no', '', type=str)
+        role_id    = request.form.get('role'   , '', type=int)
+        image    = request.files.get('image')
+        idcard    = request.files.get('idcard')
+        imagename = secure_filename(image.filename)
+        idcardname = secure_filename(idcard.filename)
+        # check if ID card image was chosen
+        if idcardname == '':
+            flash("Please select a valid ID card image")
+            return redirect(url_for('add_users'))
+
+        image.save(os.path.join(
+            files_dir, 'photos', imagename
+        ))
+        idcard.save(os.path.join(
+            files_dir, 'idcards', idcardname
+        ))
         # see if user already exists
         user = User.query.filter_by(username=unm).first()
-        # 
         if user:
-            msg = f'Error: A user with the username {user.username} already exists!'
+            flash(f'Error: A user with the username {user.username} already exists!')
         else:
-            user = User(name, unm, email, pwd, phone_no, address, staff_no, role_id)
+            user = User(name, unm, email, pwd, phone_no, address, staff_no, role_id, imagename)
             user.save()
-            msg = 'User successfully created! <br/> Return to viewing user list or add another user.'
+            flash('User successfully created! <br/> Return to viewing user list or add another user.')
     else:
-        msg = 'I am sorry but the details you entered cannot be saved :('
-    
-    print (msg)
-    return render_template('layouts/default.html', 
-        content=render_template( 'pages/add-user.html', message=msg, form=form))
+        flash('I am sorry but the details you entered cannot be saved :(')
+    return render_template('layouts/default.html', content=render_template( 'pages/add-user.html', form=form ))
 
 # Delete user in request
 @app.route('/users/delete/<id>')
 def delete_user(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))    
     # check if user is available
     user = User.query.filter_by(id=id).first()
     if user:
-        msg = f'User: {user.username} has been successfuly deleted!'
+        flash(f'User: {user.username} has been successfuly deleted!')
         db.session.delete(user)
         db.session.commit()
     else:
-        msg = 'The user you want to delete does not exist.'
+        flash('The user you want to delete does not exist.')
     return redirect('/users')

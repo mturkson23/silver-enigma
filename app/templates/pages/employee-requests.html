@@ -38,13 +38,13 @@
                         <div class="col-lg-6">
                           <div class="form-group">
                             <label class="form-control-label" for="input-username">Request Item</label>
-                            {{ form.stock_item(class="form-control form-control-alternative") }}
+                            {{ form.stock_item(class="form-control form-control-alternative text-primary") }}
                           </div>
                         </div>
                         <div class="col-lg-6">
                           <div class="form-group">
                             <label class="form-control-label" for="input-quantity">Quantity</label>
-                            {{ form.quantity(placeholder="20", class="form-control form-control-alternative") }}
+                            {{ form.quantity(placeholder="20", class="form-control form-control-alternative text-primary") }}
                           </div>
                         </div>
                       </div>
@@ -117,6 +117,7 @@
                           <i class="fas fa-ellipsis-v"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                          <a class="dropdown-item" href="/employee-requests/sales/{{request.id}}">Enter Sales</a>
                           <a class="dropdown-item" href="/employee-requests/delete/{{request.id}}">Delete</a>
                         </div>
                       </div>

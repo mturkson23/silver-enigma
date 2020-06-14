@@ -48,13 +48,13 @@
                     <div class="col-lg-6">
                       <div class="form-group">
                         <label class="form-control-label" for="input-name">Name</label>
-                        {{ form.name(placeholder="MTN Voucher", value=product.name ,class="form-control form-control-alternative") }}
+                        {{ form.name(placeholder="MTN Voucher", value=product.name ,class="form-control form-control-alternative text-primary") }}
                       </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="form-group">
                         <label class="form-control-label" for="input-description">Product Type</label>
-                        {{ form.product_type(class="form-control form-control-alternative") }}
+                        {{ form.product_type(class="form-control form-control-alternative text-primary") }}
                       </div>
                     </div>
                   </div>
@@ -62,13 +62,13 @@
                     <div class="col-lg-6">
                       <div class="form-group">
                         <label class="form-control-label" for="input-description">Product Image</label>
-                        <input type="file" id="input-imageurl" class="form-control form-control-alternative">
+                        <input type="file" id="input-imageurl" class="form-control form-control-alternative text-primary">
                       </div>
                     </div>
                     <div class="col-lg-6">
                       <div class="form-group">
                         <label class="form-control-label" for="input-description">Description</label>
-                        {{ form.description(value=product.description, class="form-control form-control-alternative") }}
+                        {{ form.description(value=product.description, class="form-control form-control-alternative text-primary") }}
                       </div>
                     </div>
                   </div>
