@@ -22,6 +22,7 @@ class User(UserMixin, db.Model):
     photo    = db.Column(db.String(20), server_default = 'sample.png')
     role_id  = db.Column(db.Integer, ForeignKey('role.id'))
 
+    sale = relationship("Sale", back_populates = "user")
     request = relationship("Request", back_populates = "user")
     role = relationship("Role", back_populates="user")
 
@@ -92,7 +93,7 @@ class Product(db.Model):
         self.producttype_id  = producttype_id
 
     def __repr__(self):
-        return '%s (%s)' % (self.name, self.producttype)
+        return '%s %s' % (self.producttype, self.name)
 
     def save(self):
         # inject self into db session
@@ -214,6 +215,7 @@ class Request(db.Model):
     stock = relationship("Stock", back_populates="request")
     requesttype = relationship("Requesttype", back_populates="request")
     requeststate = relationship("Requeststate", back_populates="request")
+    sale = relationship("Sale", back_populates="request")
 
     def __init__(self, user_id, stock_id, requesttype_id, quantity, state_id):
         self.user_id = user_id
@@ -223,7 +225,36 @@ class Request(db.Model):
         self.state_id = state_id
 
     def __repr__(self):
-        return '%s' % (self.stock_id)
+        return '%d %s on %s' % (self.quantity, self.stock, self.date_created.strftime("%b %d %Y"))
+
+    def save(self):
+        # inject self into db session
+        db.session.add (self)
+        # commit change and save the object
+        db.session.commit()
+        return self
+
+class Sale(db.Model):
+    __tablename__ = 'sale'
+    __table_args__ = {'extend_existing': True}
+
+    id              = db.Column(db.Integer, primary_key=True)
+    user_id         = db.Column(db.Integer, ForeignKey('user.id'))
+    request_id      = db.Column(db.Integer, ForeignKey('request.id'))
+    quantity        = db.Column(db.Integer)
+    stamp           = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    date_created    = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="sale")
+    request = relationship("Request", back_populates="sale")
+
+    def __init__(self, user_id, request_id, quantity):
+        self.user_id = user_id
+        self.request_id  = request_id
+        self.quantity = quantity
+
+    def __repr__(self):
+        return "%s's sale of " % (self.user.fullname, self.quantity, self.request.stock.product.name)
 
     def save(self):
         # inject self into db session
