@@ -93,7 +93,7 @@ class Product(db.Model):
         self.producttype_id  = producttype_id
 
     def __repr__(self):
-        return '%s %s' % (self.producttype, self.name)
+        return '%s' % (self.name)
 
     def save(self):
         # inject self into db session
@@ -102,25 +102,54 @@ class Product(db.Model):
         db.session.commit()
         return self
 
+class Stocktype(db.Model):
+    __tablename__ = 'stocktype'
+    __table_args__ = {'extend_existing': True}
+    id           = db.Column(db.Integer, primary_key=True)
+    name         = db.Column(db.String(100))
+    description  = db.Column(db.String(225))
+
+    stock = relationship("Stock", back_populates="stocktype")
+
+    def __init__(self, name, description):
+        self.name        = name
+        self.description = description
+
+    def __repr__(self):
+        return '%s' % (self.name)
+
+    def save(self):
+        # inject self into db session
+        db.session.add (self)
+        # commit change and save the object
+        db.session.commit()
+        return self
+
 class Stock(db.Model):
+    __tablename__ = 'stock'
     __table_args__ = {'extend_existing': True} 
     id         = db.Column(db.Integer, primary_key=True)
     cost_price  = db.Column(db.Float)
     sell_price  = db.Column(db.Float)
     quantity   = db.Column(db.Integer)
+    stocklevel   = db.Column(db.Integer)
     product_id  = db.Column(db.Integer, ForeignKey('product.id'))
+    stocktype_id  = db.Column(db.Integer, ForeignKey('stocktype.id'))
 
     product = relationship("Product", back_populates="stock")
+    stocktype = relationship("Stocktype", back_populates="stock")
     request = relationship("Request", back_populates="stock")
 
-    def __init__(self, cost_price, sell_price, quantity, product_id):
+    def __init__(self, cost_price, sell_price, quantity, product_id, stocktype_id):
         self.cost_price = cost_price
         self.sell_price = sell_price
         self.quantity  = quantity
+        self.stocklevel  = quantity
+        self.stocktype_id  = stocktype_id
         self.product_id  = product_id
 
     def __repr__(self):
-        return '%s (GHS %s)' % (self.product, self.sell_price)
+        return '%s (%s)' % (self.product, self.stocktype)
 
     def save(self):
         # inject self into db session
