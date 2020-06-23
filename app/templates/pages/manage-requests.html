@@ -25,7 +25,17 @@
     <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
       <div class="container-fluid">
         <div class="header-body">
-          <!-- Card stats -->
+          <div class="text-light text-center mt-2 mb-3">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                  {{ message }}<br/>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+          </div>
         </div>
       </div>
     </div>
