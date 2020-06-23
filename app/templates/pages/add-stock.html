@@ -25,11 +25,17 @@
     <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
       <div class="container-fluid">
         <div class="header-body">
-          <div class="text-muted text-center mt-2 mb-3">
-            {% if message %}
-              <span class="text-success">{{ message | safe }}</span>
-            {% endif %}
-          </div>          
+          <div class="text-light text-center mt-2 mb-3">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                  {{ message }}<br/>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+          </div>
         </div>
       </div>
     </div>
@@ -73,8 +79,16 @@
                     </div>
                   </div>
                   <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-product">Type</label>
+                        {{ form.stocktype(class="form-control form-control-alternative text-primary") }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
                     <div class="col-xl-12 text-center">
-                      <button type="submit" class="btn btn-info">Send</button>
+                      <button type="submit" class="btn btn-info">Save</button>
                     </div>
                   </div>                      
                 </div>
