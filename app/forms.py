@@ -19,13 +19,14 @@ class ProductForm(FlaskForm):
 	name    		= StringField  (u'Name'  , validators=[DataRequired()])
 	product_type    = SelectField(u'Product Type', coerce=int)
 	description     = StringField  (u'Description', validators=[DataRequired()])	
-	imageurl 		= FileField (u'Product Icon')	
+	# imageurl 		= FileField(validators=[])
 
 class StockForm(FlaskForm):
 	cost_price    		= DecimalField  (u'Cost Price'  , validators=[DataRequired()])
 	sell_price    		= DecimalField  (u'Selling Price'  , validators=[DataRequired()])
 	quantity    		= IntegerField  (u'Quantity'  , validators=[DataRequired()])
 	product   			= SelectField(u'Product', coerce=int)
+	stocktype   		= SelectField(u'Type', coerce=int)
 
 class RequestForm(FlaskForm):
 	quantity    		= IntegerField  (u'Quantity'  , validators=[DataRequired()])
