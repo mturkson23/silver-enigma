@@ -5,17 +5,18 @@
         <div class="col-lg-5 col-md-7">
           <div class="card bg-secondary shadow border-0">
             <div class="card-header bg-transparent pb-5">
-
               <div class="text-muted text-center mt-2 mb-3">
-              
-                {% if msg %}
-                  <span class="text-danger">{{ msg | safe }}</span>
-                {% else %}
-                  Sign in
+                Sign In
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                  <ul class=flashes>
+                  {% for message in messages %}
+                    {{ message }}<br/>
+                  {% endfor %}
+                  </ul>
                 {% endif %}
-
+              {% endwith %}
               </div>
-              
             </div>
             <div class="card-body px-lg-5 py-lg-5">
 
