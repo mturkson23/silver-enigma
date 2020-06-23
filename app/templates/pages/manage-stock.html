@@ -26,6 +26,17 @@
       <div class="container-fluid">
         <div class="header-body">
           <!-- Card stats -->
+          <div class="text-light text-center mt-2 mb-3">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                  {{ message }}<br/>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+          </div>
         </div>
       </div>
     </div>
@@ -65,7 +76,7 @@
                           <img alt="Image placeholder" src="/static/files/products/{{stock_item.product.imageurl}}">
                         </a>
                         <div class="media-body">
-                          <span class="mb-0 text-sm">{{stock_item.product.name}}</span>
+                          <span class="mb-0 text-sm">{{stock_item}}</span>
                         </div>
                       </div>
                     </th>
