@@ -7956,6 +7956,11 @@ button.bg-secondary:focus
     background-color: #2dce89 !important;
 }
 
+.approved
+{
+    background-color: #2dce89 !important;
+}
+
 a.bg-success:hover,
 a.bg-success:focus,
 button.bg-success:hover,
@@ -7982,6 +7987,11 @@ button.bg-info:focus
     background-color: #fb6340 !important;
 }
 
+.pending
+{
+    background-color: #fb6340 !important;
+}
+
 a.bg-warning:hover,
 a.bg-warning:focus,
 button.bg-warning:hover,
@@ -7991,6 +8001,11 @@ button.bg-warning:focus
 }
 
 .bg-danger
+{
+    background-color: #f5365c !important;
+}
+
+.declined
 {
     background-color: #f5365c !important;
 }

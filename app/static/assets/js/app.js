@@ -1,12 +1,11 @@
 
 'use strict';
 
-$(function() {
-    
+$(function() {    
     // Update the Traffic cell
     $.getJSON('/api/stats/traffic', function( data ) { 
         //console.log( ' -> ' + data['traffic'] ) 
-        $('#stats_traffic').html( data['traffic'] );
+        $('#stats_revenue').html( data['revenue'] );
     });
 
     // Update the Users cell
@@ -22,9 +21,8 @@ $(function() {
     });
 
     // Update the Perf cell
-    $.getJSON('/api/stats/perf', function( data ) { 
-        //console.log( ' -> ' + data['traffic'] ) 
-        $('#stats_perf').html( data['perf'] );
+    $.getJSON('/api/stats/profit', function( data ) { 
+        $('#stats_profit').html( data['profit'] );
     });
 
 });

@@ -29,5 +29,7 @@ lm.init_app(app) # init the login manager
 def initialize_database():
     db.create_all()
 
+TEMPLATES_AUTO_RELOAD = True
+
 # Import routing, models and Start the App
 from app import views, models

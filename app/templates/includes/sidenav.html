@@ -8,7 +8,7 @@
       </button>
       <!-- Brand -->
       <a class="navbar-brand pt-0" href="/">
-        <img src="/static/assets/img/brand/blue.png" class="navbar-brand-img" alt="Flask Argon Dashboard">
+        <img src="/static/assets/img/brand/download.png" class="navbar-brand-img" alt="Retail Manager">
       </a>
       <!-- User -->
       <ul class="nav align-items-center d-md-none">
@@ -27,7 +27,7 @@
           <a class="nav-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <div class="media align-items-center">
               <span class="avatar avatar-sm rounded-circle">
-                <img alt="Image placeholder" src="/static/assets/img/theme/team-1-800x800.jpg">
+                <img alt="Image placeholder" src="/static/files/photos/{{current_user.photo}}">
               </span>
             </div>
           </a>
@@ -35,13 +35,9 @@
             <div class=" dropdown-header noti-title">
               <h6 class="text-overflow m-0">Welcome!</h6>
             </div>
-            <a href="/profile.html" class="dropdown-item">
+            <a href="/#" class="dropdown-item">
               <i class="ni ni-single-02"></i>
               <span>My profile</span>
-            </a>
-            <a href="/profile.html" class="dropdown-item">
-              <i class="ni ni-settings-gear-65"></i>
-              <span>Settings</span>
             </a>
             <div class="dropdown-divider"></div>
             <a href={{ url_for('logout') }} class="dropdown-item">
@@ -58,7 +54,7 @@
           <div class="row">
             <div class="col-6 collapse-brand">
               <a href="./index.html">
-                <img src="/static/assets/img/brand/blue.png">
+                <img src="/static/assets/img/brand/download.png">
               </a>
             </div>
             <div class="col-6 collapse-close">
@@ -87,84 +83,44 @@
               <i class="ni ni-tv-2 text-primary"></i> Dashboard
             </a>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a class="nav-link" href="/icons.html">
               <i class="ni ni-planet text-blue"></i> Icons
             </a>
-          </li>
+          </li> -->
           <li class="nav-item">
-            <a class="nav-link" href="/profile.html">
-              <i class="ni ni-single-02 text-yellow"></i> User profile
+            <a class="nav-link" href="/users">
+              <i class="ni ni-single-02 text-yellow"></i> Manage Users
             </a>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a class="nav-link" href="/tables.html">
               <i class="ni ni-bullet-list-67 text-red"></i> Tables
             </a>
-          </li>
-
-          {% if current_user.is_authenticated %}
-
+          </li> -->
           <li class="nav-item">
-            <a class="nav-link" href={{ url_for('logout') }}>
-              <i class="ni ni-key-25 text-info"></i> Logout
-            </a>
-          </li>
-
-          {% else %}
-
-          <li class="nav-item">
-            <a class="nav-link" href={{ url_for('login') }}>
-              <i class="ni ni-key-25 text-info"></i> Login
+            <a class="nav-link" href="/employee-requests">
+              <i class="ni ni-bullet-list-67 text-red"></i> My Requests
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href={{ url_for('register') }}>
-              <i class="ni ni-circle-08 text-pink"></i> Register
+            <a class="nav-link" href="/requests">
+              <i class="ni ni-bullet-list-67 text-blue"></i> Manage Requests
             </a>
           </li>
-
-          {% endif %}
-
+          <li class="nav-item">
+            <a class="nav-link" href="/products">
+              <i class="ni ni-bullet-list-67 text-blue"></i> Manage Products
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/stock">
+              <i class="ni ni-bullet-list-67 text-blue"></i> Manage Stock
+            </a>
+          </li>
         </ul>
         <!-- Divider -->
         <hr class="my-3">
-        <!-- Heading -->
-        <h6 class="navbar-heading text-muted">Support</h6>
-        <!-- Navigation -->
-        <ul class="navbar-nav mb-md-3">
-
-          <li class="nav-item">
-            <a class="nav-link" href="https://github.com/app-generator/flask-argon-dashboard">
-              <i class="ni ni-ui-04"></i> Source Code
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="https://appseed.us/admin-dashboards/flask-dashboard-argon">
-              <i class="ni ni-book-bookmark"></i> App Information
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="https://docs.appseed.us/admin-dashboards/flask-dashboard-argon/">
-              <i class="ni ni-book-bookmark"></i> Documentation
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="https://blog.appseed.us/flask-argon-dashboard-zero-to-full-stack/">
-              <i class="ni ni-spaceship"></i> Blog
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/getting-started/overview.html">
-              <i class="ni ni-books"></i> Design Docs
-            </a>
-          </li>
-
-        </ul>
       </div>
     </div>
   </nav>
