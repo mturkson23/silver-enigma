@@ -78,6 +78,7 @@
         </form>
         <!-- Navigation -->
         <ul class="navbar-nav">
+          {% if current_user.role_id == 2 %}
           <li class="nav-item">
             <a class="nav-link" href="/">
               <i class="ni ni-tv-2 text-primary"></i> Dashboard
@@ -93,16 +94,15 @@
               <i class="ni ni-single-02 text-yellow"></i> Manage Users
             </a>
           </li>
-          <!-- <li class="nav-item">
-            <a class="nav-link" href="/tables.html">
-              <i class="ni ni-bullet-list-67 text-red"></i> Tables
-            </a>
-          </li> -->
+          {% endif %}
+          {% if current_user.role_id == 1 %}
           <li class="nav-item">
             <a class="nav-link" href="/employee-requests">
               <i class="ni ni-bullet-list-67 text-red"></i> My Requests
             </a>
           </li>
+          {% endif %}
+          {% if current_user.role_id == 2 %}
           <li class="nav-item">
             <a class="nav-link" href="/requests">
               <i class="ni ni-bullet-list-67 text-blue"></i> Manage Requests
@@ -118,6 +118,7 @@
               <i class="ni ni-bullet-list-67 text-blue"></i> Manage Stock
             </a>
           </li>
+          {% endif %}
         </ul>
         <!-- Divider -->
         <hr class="my-3">
