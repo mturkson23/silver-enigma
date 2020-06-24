@@ -501,6 +501,9 @@ def index(path):
         return redirect(url_for('login'))
     content = None
     try:
+        employee_role = Role.query.filter_by(name = "Employee").first()
+        if current_user.role_id == employee_role.id:
+            return redirect(url_for('employee_requests'))        
         # try to match the pages defined in -> pages/<input file>
         return render_template('layouts/default.html',
                                 content=render_template( 'pages/'+path) )
