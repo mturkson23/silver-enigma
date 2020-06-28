@@ -63,7 +63,7 @@
                     <th scope="row">
                       <div class="media align-items-center">
                         <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/files/products/{{stock_item.product.imageurl}}">
+                          <img alt="Image placeholder" src="{{ url_for('static', filename='files/products/') }}{{stock_item.product.imageurl}}">
                         </a>
                         <div class="media-body">
                           <span class="mb-0 text-sm">{{stock_item}}</span>

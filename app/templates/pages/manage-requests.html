@@ -57,7 +57,7 @@
                     <th scope="row">
                       <div class="media align-items-center">
                         <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/files/photos/{{ current_user.photo }}">
+                          <img alt="Image placeholder" src="{{ url_for('static', filename='files/photos/') }}{{ current_user.photo }}">
                         </a>
                         <div class="media-body">
                           <span class="mb-0 text-sm">{{ current_user.fullname }}</span>
@@ -67,7 +67,7 @@
                     <td scope="row">
                       <div class="media align-items-center">
                         <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="/static/files/products/{{ xrequest.stock.product.imageurl }}">
+                          <img alt="Image placeholder" src="{{ url_for('static', filename='files/products/') }}{{ xrequest.stock.product.imageurl }}">
                         </a>
                         <div class="media-body">
                           <span class="mb-0 text-sm">{{xrequest.stock.product.name}}</span>

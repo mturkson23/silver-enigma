@@ -110,7 +110,7 @@ def login():
 
 # List all products
 @app.route('/products')
-def fetch_products():
+def manage_products():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))    
     # fetch all products from database
@@ -120,7 +120,7 @@ def fetch_products():
 
 # List all stock items
 @app.route('/stock')
-def fetch_stock():
+def manage_stock():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))    
     # fetch all stock from database

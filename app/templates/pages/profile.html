@@ -38,7 +38,7 @@
               <div class="col-lg-3 order-lg-2">
                 <div class="card-profile-image">
                   <a href="#">
-                    <img src="/static/files/photos/{{current_user.photo}}" class="rounded-circle">
+                    <img src="{{ url_for('static', filename='files/photos/') }}{{current_user.photo}}" class="rounded-circle">
                   </a>
                 </div>
               </div>

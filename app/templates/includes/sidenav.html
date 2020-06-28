@@ -8,7 +8,7 @@
       </button>
       <!-- Brand -->
       <a class="navbar-brand pt-0" href="/">
-        <img src="/static/assets/img/brand/download.png" class="navbar-brand-img" alt="Retail Manager">
+        <img src="{{ url_for('static', filename='assets/img/brand/download.png') }}" class="navbar-brand-img" alt="Retail Manager">
       </a>
       <!-- User -->
       <ul class="nav align-items-center d-md-none">
@@ -27,7 +27,7 @@
           <a class="nav-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <div class="media align-items-center">
               <span class="avatar avatar-sm rounded-circle">
-                <img alt="Image placeholder" src="/static/files/photos/{{current_user.photo}}">
+                <img alt="Image placeholder" src="{{ url_for('static', filename='files/photos/') }}{{current_user.photo}}">
               </span>
             </div>
           </a>
@@ -54,7 +54,7 @@
           <div class="row">
             <div class="col-6 collapse-brand">
               <a href="./index.html">
-                <img src="/static/assets/img/brand/download.png">
+                <img src="{{ url_for('static', filename='assets/img/brand/download.png') }}">
               </a>
             </div>
             <div class="col-6 collapse-close">
@@ -80,7 +80,7 @@
         <ul class="navbar-nav">
           {% if current_user.role_id == 2 %}
           <li class="nav-item">
-            <a class="nav-link" href="/">
+            <a class="nav-link" href="{{ url_for('index') }}">
               <i class="ni ni-tv-2 text-primary"></i> Dashboard
             </a>
           </li>
@@ -90,31 +90,31 @@
             </a>
           </li> -->
           <li class="nav-item">
-            <a class="nav-link" href="/users">
+            <a class="nav-link" href="{{ url_for('manage_users') }}">
               <i class="ni ni-single-02 text-yellow"></i> Manage Users
             </a>
           </li>
           {% endif %}
           {% if current_user.role_id == 1 %}
           <li class="nav-item">
-            <a class="nav-link" href="/employee-requests">
+            <a class="nav-link" href="{{ url_for('employee_requests') }}">
               <i class="ni ni-bullet-list-67 text-red"></i> My Requests
             </a>
           </li>
           {% endif %}
           {% if current_user.role_id == 2 %}
           <li class="nav-item">
-            <a class="nav-link" href="/requests">
+            <a class="nav-link" href="{{ url_for('manage_requests') }}">
               <i class="ni ni-bullet-list-67 text-blue"></i> Manage Requests
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/products">
+            <a class="nav-link" href="{{ url_for('manage_products') }}">
               <i class="ni ni-bullet-list-67 text-blue"></i> Manage Products
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/stock">
+            <a class="nav-link" href="{{ url_for('manage_stock') }}">
               <i class="ni ni-bullet-list-67 text-blue"></i> Manage Stock
             </a>
           </li>
