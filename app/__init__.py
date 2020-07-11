@@ -26,6 +26,7 @@ bc = Bcrypt      (app) # flask-bcrypt
 
 lm = LoginManager(   ) # flask-loginmanager
 lm.init_app(app) # init the login manager
+lm.login_view = "login"
 
 # Setup database
 @app.before_first_request
