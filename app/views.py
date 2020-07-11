@@ -94,9 +94,7 @@ def login():
 
         # filter User out of database through username
         user = User.query.filter_by(username=username).first()
-
         if user:
-            print(user)
             if bc.check_password_hash(user.password, password):
                 login_user(user)
                 return redirect(url_for('index'))
@@ -496,9 +494,10 @@ def edit_product(id):
 # App main route + generic routing
 @app.route('/', defaults={'path': 'index.html'})
 @app.route('/<path>')
+@login_required
 def index(path):
-    if not current_user.is_authenticated:
-        return redirect(url_for('login'))
+    # if not current_user.is_authenticated:
+    #     return redirect(url_for('login'))
     content = None
     try:
         employee_role = Role.query.filter_by(name = "Employee").first()
