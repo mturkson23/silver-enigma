@@ -60,7 +60,7 @@
                           <img alt="Image placeholder" src="{{ url_for('static', filename='files/photos/') }}{{ current_user.photo }}">
                         </a>
                         <div class="media-body">
-                          <span class="mb-0 text-sm">{{ current_user.fullname }}</span>
+                          <span class="mb-0 text-sm">{{ xrequest.user.fullname }}</span>
                         </div>
                       </div>
                     </th>                    
@@ -75,10 +75,10 @@
                       </div>
                     </td>
                     <td class="text-center">
-                      20
+                      {{xrequest.quantity}}
                     </td>
                     <td class="text-center">
-                      GHS 200
+                      GHS {{xrequest.quantity*xrequest.stock.sell_price}}
                     </td>
                     <td class="text-center">
                       <span class="badge badge-dot mr-4">
