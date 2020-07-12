@@ -178,7 +178,7 @@ def delete_stock(id):
         flash('Stock item has been successfuly deleted!')
     else:
         flash('The stock item you want to delete does not exist.')
-    return redirect('/stock')
+    return redirect('/psalm2vs8/stock')
 
 # Edit stock in request
 @app.route('/stock/edit/<id>', methods=['GET', 'POST'])
@@ -221,7 +221,7 @@ def edit_stock(id):
             flash(f'Error: A stock entry for {stock.quantity} {stock.product} already exists')
     else:
         flash('I am sorry but the details you entered cannot be saved')
-    return redirect('/stock')
+    return redirect('/psalm2vs8/stock')
 
 # Add product
 @app.route('/products/add', methods=['GET','POST'])
@@ -333,7 +333,7 @@ def add_employee_xrequest():
             flash(f'I am sorry but we have only {stock.quantity} {stock} available')
     else:
         flash('I am sorry but the details you entered cannot be saved :(')
-    return redirect('/employee-requests')
+    return redirect('/psalm2vs8/employee-requests')
 
 # Delete request
 @app.route('/employee-requests/delete/<id>')
@@ -348,7 +348,7 @@ def delete_employee_request(id):
         flash('Your request has been successfuly deleted!')
     else:
         flash('The request you want to delete does not exist!')
-    return redirect('/employee-requests')
+    return redirect('/psalm2vs8/employee-requests')
 
 # record sales on employee request
 @app.route('/employee-requests/sales/<id>')
@@ -376,7 +376,7 @@ def sales_employee_request(id):
             msg = msg ))
     else:
         flash('The request you want to record sales on does not exist!')
-    return redirect('/employee-requests')            
+    return redirect('/psalm2vs8/employee-requests')            
 
 # Add employee request
 @app.route('/employee-sales/add', methods=['POST'])
@@ -399,7 +399,7 @@ def add_employee_sales():
         flash('Sale entry successfully created!')
     else:
         flash('I am sorry but the details you entered cannot be saved :(')
-    return redirect(f'/employee-requests/sales/{request_id}')
+    return redirect(f'/psalm2vs8/employee-requests/sales/{request_id}')
 
 # approve request
 @app.route('/requests/approve/<id>')
@@ -415,7 +415,7 @@ def approve_employee_request(id):
         flash('This request has been approved!')
     else:
         flash('The request you want to approve does not exist.')
-    return redirect('/requests')
+    return redirect('/psalm2vs8/requests')
 
 # decline request
 @app.route('/requests/decline/<id>')
@@ -431,7 +431,7 @@ def decline_employee_request(id):
         flash('This request has been declined!')
     # else:
         # msg = 'The request you want to approve does not exist.'
-    return redirect('/requests')
+    return redirect('/psalm2vs8/requests')
 
 # Delete product in request
 @app.route('/products/delete/<id>')
@@ -446,7 +446,7 @@ def delete_product(id):
         flash('Product has been successfuly deleted!')
     else:
         flash('The product you want to delete does not exist.')
-    return redirect('/products')
+    return redirect('/psalm2vs8/products')
 
 # Edit product in request
 @app.route('/products/edit/<id>', methods=['GET', 'POST'])
@@ -489,7 +489,7 @@ def edit_product(id):
             flash(f'Error: A product named {product.name} does not exist!')
     else:
         flash('I am sorry but the details you entered cannot be saved')
-    return redirect('/products')
+    return redirect('/psalm2vs8/products')
 
 # App main route + generic routing
 @app.route('/', defaults={'path': 'index.html'})
@@ -585,4 +585,4 @@ def delete_user(id):
         db.session.commit()
     else:
         flash('The user you want to delete does not exist.')
-    return redirect('/users')
+    return redirect('/psalm2vs8/users')
