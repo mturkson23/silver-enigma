@@ -356,7 +356,8 @@ def sales_employee_request(id):
     if not current_user.is_authenticated:
         return redirect(url_for('login'))    
     # check if request is available
-    xrequest = Request.query.filter_by(id=id, user_id=current_user.id).first()
+    approved_state_id = 3
+    xrequest = Request.query.filter_by(id=id, user_id=current_user.id, state_id=approved_state_id).first()
     if xrequest:
         form = SaleForm(request.form, request_item = xrequest.id)
         msg = None
@@ -375,7 +376,7 @@ def sales_employee_request(id):
             form = form,
             msg = msg ))
     else:
-        flash('The request you want to record sales on does not exist!')
+        flash('The request you want to record sales on does not exist or it has not been approved!')
     return redirect('/psalm2vs8/employee-requests')            
 
 # Add employee request
