@@ -4,7 +4,7 @@
     <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
       <div class="container-fluid">
         <!-- Brand -->
-        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="/users">Manage Users</a>
+        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="/psalm2vs8/users">Manage Users</a>
 
         <!-- User -->
         {% include 'includes/user-dropdown.html' %}
@@ -30,7 +30,7 @@
                   <h3 class="mb-0">All Users</h3>
                 </div>
                 <div class="col text-right">
-                  <a href="/users/add" class="btn btn-sm btn-primary">New User</a>
+                  <a href="/psalm2vs8/users/add" class="btn btn-sm btn-primary">New User</a>
                 </div>
               </div>              
             </div>             
@@ -78,8 +78,8 @@
                           <i class="fas fa-ellipsis-v"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                          <a class="dropdown-item" href="/users/edit/{{user.id}}">Edit</a>
-                          <a class="dropdown-item" href="/users/delete/{{user.id}}">Delete</a>
+                          <a class="dropdown-item" href="/psalm2vs8/users/edit/{{user.id}}">Edit</a>
+                          <a class="dropdown-item" href="/psalm2vs8/users/delete/{{user.id}}">Delete</a>
                         </div>
                       </div>
                     </td>

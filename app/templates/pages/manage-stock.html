@@ -4,7 +4,7 @@
     <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
       <div class="container-fluid">
         <!-- Brand -->
-        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="/stock">Manage Stock</a>
+        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="/psalm2vs8/stock">Manage Stock</a>
 
         <!-- User -->
         {% include 'includes/user-dropdown.html' %}
@@ -42,7 +42,7 @@
                   <h3 class="mb-0">Product Items in Stock</h3>
                 </div>
                 <div class="col text-right">
-                  <a href="/stock/add" class="btn btn-sm btn-primary">New Stock Item</a>
+                  <a href="/psalm2vs8/stock/add" class="btn btn-sm btn-primary">New Stock Item</a>
                 </div>
               </div>
             </div>
@@ -85,8 +85,8 @@
                           <i class="fas fa-ellipsis-v"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                          <a class="dropdown-item" href="/stock/edit/{{stock_item.id}}">Edit</a>
-                          <a class="dropdown-item" href="/stock/delete/{{stock_item.id}}">Delete</a>
+                          <a class="dropdown-item" href="/psalm2vs8/stock/edit/{{stock_item.id}}">Edit</a>
+                          <a class="dropdown-item" href="/psalm2vs8/stock/delete/{{stock_item.id}}">Delete</a>
                         </div>
                       </div>
                     </td>
